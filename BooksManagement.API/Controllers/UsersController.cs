@@ -1,5 +1,7 @@
 ﻿using BooksManagement.API.Entities;
+using BooksManagement.API.MappingViewModels;
 using BooksManagement.API.Models.InputModels;
+using BooksManagement.API.Models.ViewModels;
 using BooksManagement.API.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,16 +21,18 @@ namespace BooksManagement.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<IEnumerable<UserViewModel>>> GetAll()
         {
             var users = await _booksManagementDbContext.Users.ToListAsync();
 
-            return Ok(users);
+            var usersInputModel = users.ConvertUserToViewModel();
+
+            return Ok(usersInputModel);
         }
 
         [HttpGet("{id}")]
 
-        public async Task<IActionResult> GetById(int id)
+        public async Task<ActionResult<UserViewModel>> GetById(int id)
         {
             var user = await _booksManagementDbContext.Users.SingleOrDefaultAsync(u => u.Id == id);
 
@@ -36,6 +40,8 @@ namespace BooksManagement.API.Controllers
             {
                 return NotFound();
             }
+
+            var userViewModel = user.ConvertUserByIdViewModel();
 
             return Ok(user);
         }

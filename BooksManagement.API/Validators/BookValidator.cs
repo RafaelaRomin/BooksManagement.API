@@ -1,13 +1,17 @@
 ﻿using BooksManagement.API.Entities;
 using BooksManagement.API.Models.InputModels;
+using BooksManagement.API.Persistence;
 using FluentValidation;
 
 namespace BooksManagement.API.Validations
 {
     public class BookValidator : AbstractValidator<BookInputModel>
     {
-        public BookValidator()
+        private readonly BooksManagementDbContext _dbContext;
+        public BookValidator(BooksManagementDbContext dbContext)
         {
+            _dbContext = dbContext;
+
             RuleFor(book => book.PublicationYear)
                 .Must(YearNotBiggerThanDateNow)
                 .WithMessage("O ano de publicação não pode ser superior ao ano atual!");
@@ -18,6 +22,7 @@ namespace BooksManagement.API.Validations
 
             RuleFor(book => book.Title)
                 .NotEmpty()
+                .NotNull()
                 .WithMessage("O titulo do livro não pode ser um campo vazio!");
 
             RuleFor(book => book.Title)
@@ -28,6 +33,11 @@ namespace BooksManagement.API.Validations
                 .NotEmpty()
                 .Length(13)
                 .WithMessage("O ISBN tem que ter exatamente 13 dígitos, verifique e preencha novamente!");
+
+            RuleFor(book => book.ISBN)
+                .NotNull()
+                .Must(IsbnExists)
+                .WithMessage("Este ISBN já existe, não é possivel cadastrar novamente!");
 
             RuleFor(book => book.Author)
                 .NotEmpty()
@@ -56,5 +66,15 @@ namespace BooksManagement.API.Validations
             return true;
         }
 
+        private bool IsbnExists(BookInputModel inputModel, string arg)
+        {
+            var isbnDb = _dbContext.Books.Any(b => b.ISBN == inputModel.ISBN);
+
+            if (isbnDb)
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }

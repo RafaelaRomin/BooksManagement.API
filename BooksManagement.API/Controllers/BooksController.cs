@@ -1,5 +1,7 @@
 ﻿using BooksManagement.API.Entities;
+using BooksManagement.API.MappingViewModels;
 using BooksManagement.API.Models.InputModels;
+using BooksManagement.API.Models.ViewModels;
 using BooksManagement.API.Persistence;
 using BooksManagement.API.Validations;
 using FluentValidation;
@@ -21,21 +23,22 @@ namespace BooksManagement.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task <ActionResult<IEnumerable<BookViewModel>>> GetAll()
         {
-            var books = await _booksManagementDbContext.Books
-                              .ToListAsync();
+            var books = await _booksManagementDbContext.Books.ToListAsync();
 
             if (books is null)
             {
                 return BadRequest();
             }
-            
-            return Ok(books);
+
+            var booksViewModel = books.ConvertBookViewModel();
+
+            return Ok(booksViewModel);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<ActionResult<BookViewModel>> GetById(int id)
         {
 
             var book = await _booksManagementDbContext.Books.SingleOrDefaultAsync(b => b.Id == id);
@@ -44,8 +47,10 @@ namespace BooksManagement.API.Controllers
             {
                 return NotFound();
             }
+            
+            var bookViewModel = book.ConvertBookViewModelById();
 
-            return Ok(book);
+            return Ok(bookViewModel);
         }
 
         [HttpPost]
@@ -54,13 +59,6 @@ namespace BooksManagement.API.Controllers
             if (!ModelState.IsValid)
             {
                 return BadRequest();
-            }
-
-            var isbnDb = _booksManagementDbContext.Books.Any(b => b.ISBN == bookInputModel.ISBN);
-
-            if (isbnDb)
-            {
-                return BadRequest("Este ISBN já existe, não é possivel cadastrar novamente!");
             }
 
             var book = new Book(bookInputModel.Title, bookInputModel.Author, bookInputModel.ISBN, bookInputModel.PublicationYear);
@@ -75,10 +73,6 @@ namespace BooksManagement.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, BookInputModel bookUpdated)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
 
             var book = await _booksManagementDbContext
                              .Books
