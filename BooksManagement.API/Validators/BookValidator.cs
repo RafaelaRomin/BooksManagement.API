@@ -66,15 +66,15 @@ namespace BooksManagement.API.Validations
             return true;
         }
 
-        private bool IsbnExists(BookInputModel inputModel, string arg)
+        private bool IsbnExists(string isbn)
         {
-            var isbnDb = _dbContext.Books.Any(b => b.ISBN == inputModel.ISBN);
+            var isbnDb = _dbContext.Books.Any(b => b.ISBN == isbn);
 
             if (isbnDb)
             {
-                return false;
+                return true;
             }
-            return true;
+            return false;
         }
     }
 }

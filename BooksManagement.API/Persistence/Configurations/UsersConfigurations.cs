@@ -9,8 +9,7 @@ namespace BooksManagement.API.Persistence.Configurations
         public void Configure(EntityTypeBuilder<User> builder)
         {
             builder 
-                .HasKey(u => u.Id);
-                
+                .HasKey(u => u.Id);      
         }
     }
 }

@@ -10,16 +10,6 @@ namespace BooksManagement.API.Persistence.Configurations
         {
             builder
                 .HasKey(b => b.Id);
-
-            //builder
-            //    .HasOne(b => b.Client)
-            //    .WithMany()
-            //    .HasForeignKey(b => b.IdClient);
-
-            //builder
-            //    .HasOne(b => b.Loan)
-            //    .WithMany()
-            //    .HasForeignKey(b => b.IdLoan);
             
         }
     }
