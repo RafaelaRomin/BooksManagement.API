@@ -56,10 +56,6 @@ namespace BooksManagement.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(BookInputModel bookInputModel)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
 
             var book = new Book(bookInputModel.Title, bookInputModel.Author, bookInputModel.ISBN, bookInputModel.PublicationYear);
 
